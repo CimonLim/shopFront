@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+
+    volumes:
+      - ./:/app # 소스 코드 변경 감지를 위한 볼륨 매핑
+      - /app/node_modules # node_modules는 컨테이너 내부 것 사용
+      - /app/apps/isomorphic/node_modules # isomorphic 앱의 node_modules도 컨테이너 내부 것 사용
+      - /app/apps/isomorphic/.next # Next.js 빌드 결과물은 컨테이너 내부 것 사용
+    env_file:
+      - ./apps/isomorphic/.env.local # 개발 환경 환경 변수 파일
+    command: turbo dev --filter=isomorphic # 개발 서버 실행
+    restart: unless-stopped

@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # 프로덕션은 기본적으로 최종 단계(runner)를 사용
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./apps/isomorphic/.env.production # 프로덕션 환경 환경 변수 파일
+    restart: always
