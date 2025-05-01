@@ -1,7 +1,7 @@
 import {UserResponse} from "@/app/api/user/response/UserResponse.ts";
 import {apiClient} from "@/app/api/interceptor/client.ts";
 import {env} from "@/env.mjs";
-import {endpoints} from "@/app/api/auth/endpoints.ts";
+import {endpoints} from "@/app/api/endpoints.ts";
 import {ApiResponse} from "@/app/api/common/response/ApiResponse.ts";
 import {TokenResponse} from "@/app/api/auth/response/TokenResponse.ts";
 
@@ -22,7 +22,7 @@ export class UserService {
         // 로그인 API 호출
         const userResponse = await apiClient.request<ApiResponse<UserResponse>>({
             method: 'GET',
-            url: env.BACKEND_BASE_URL + endpoints.auth.me,
+            url: endpoints.user.me,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },

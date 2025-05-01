@@ -63,6 +63,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     // getSession Customize
     async session({ session, token }) {
+      console.log('in session')
       return {
         ...session,
         user: {
@@ -74,6 +75,7 @@ export const authOptions: NextAuthOptions = {
       };
     },
     async jwt({ token, user}: { token: JWT; user?: User;}) {
+      console.log('in jwt')
       // 초기 로그인 시
       if (user) {
         return {

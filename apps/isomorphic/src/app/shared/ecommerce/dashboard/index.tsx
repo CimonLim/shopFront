@@ -15,15 +15,24 @@ import StockReport from '@/app/shared/ecommerce/dashboard/stock-report';
 import { PiPlusBold } from 'react-icons/pi';
 import welcomeImg from '@public/shop-illustration.png';
 import HandWaveIcon from '@core/components/icons/hand-wave';
+import {useSession} from "next-auth/react";
+import {getServerSession} from "next-auth/next";
+import {authOptions} from "@/app/api/auth/[...nextauth]/auth-options.ts";
+import {UserResponse} from "@/app/api/user/response/UserResponse.ts";
+import {Session} from "next-auth";
 
-export default function EcommerceDashboard() {
+interface EcommerceDashboardProps {
+  initialSession: Session | null;
+}
+export default function EcommerceDashboard({initialSession}:EcommerceDashboardProps) {
+
   return (
     <div className="@container">
       <div className="grid grid-cols-1 gap-6 @4xl:grid-cols-2 @7xl:grid-cols-12 3xl:gap-8">
         <WelcomeBanner
           title={
             <>
-              Good Morning, <br /> Cameron{' '}
+              Good Morning, <br /> {initialSession?.user?.name ||'Guest'}{' '}
               <HandWaveIcon className="inline-flex h-8 w-8" />
             </>
           }

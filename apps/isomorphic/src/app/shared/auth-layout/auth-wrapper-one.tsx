@@ -82,35 +82,35 @@ export default function AuthWrapperOne({
                 {description}
               </Text>
             </div>
-            {isSocialLoginActive && (
-              <>
-                <div className="grid grid-cols-1 gap-4 pb-5 md:grid-cols-2 md:pb-6 xl:gap-5 xl:pb-7">
-                  <Button
-                    onClick={() =>
-                      // it should be signIn('apple')
-                      handleSignIn()
-                    }
-                    variant="outline"
-                    className="h-11 w-full"
-                  >
-                    <PiAppleLogoFill className="me-2 h-4 w-4 shrink-0" />
-                    <span className="truncate">Signin With Apple</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      // it should be signIn('google')
-                      handleSignIn()
-                    }
-                    className="h-11 w-full"
-                  >
-                    <FcGoogle className="me-2 h-4 w-4 shrink-0" />
-                    <span className="truncate">Signin With Google</span>
-                  </Button>
-                </div>
-                <OrSeparation title="OR" className="mb-5 2xl:mb-7" isCenter />
-              </>
-            )}
+            {/*{isSocialLoginActive && (*/}
+            {/*  <>*/}
+            {/*    <div className="grid grid-cols-1 gap-4 pb-5 md:grid-cols-2 md:pb-6 xl:gap-5 xl:pb-7">*/}
+            {/*      <Button*/}
+            {/*        onClick={() =>*/}
+            {/*          // it should be signIn('apple')*/}
+            {/*          handleSignIn()*/}
+            {/*        }*/}
+            {/*        variant="outline"*/}
+            {/*        className="h-11 w-full"*/}
+            {/*      >*/}
+            {/*        <PiAppleLogoFill className="me-2 h-4 w-4 shrink-0" />*/}
+            {/*        <span className="truncate">Signin With Apple</span>*/}
+            {/*      </Button>*/}
+            {/*      <Button*/}
+            {/*        variant="outline"*/}
+            {/*        onClick={() =>*/}
+            {/*          // it should be signIn('google')*/}
+            {/*          handleSignIn()*/}
+            {/*        }*/}
+            {/*        className="h-11 w-full"*/}
+            {/*      >*/}
+            {/*        <FcGoogle className="me-2 h-4 w-4 shrink-0" />*/}
+            {/*        <span className="truncate">Signin With Google</span>*/}
+            {/*      </Button>*/}
+            {/*    </div>*/}
+            {/*    <OrSeparation title="OR" className="mb-5 2xl:mb-7" isCenter />*/}
+            {/*  </>*/}
+            {/*)}*/}
 
             {children}
           </div>

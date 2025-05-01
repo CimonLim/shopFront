@@ -1,11 +1,13 @@
-import FileDashboard from '@/app/shared/file/dashboard';
 import { metaObject } from '@/config/site.config';
+
+import eCommerceDashboardPage from "@/app/(hydrogen)/ecommerce/page.tsx";
 
 export const metadata = {
   ...metaObject(),
 };
 
-export default function FileDashboardPage() {
+export default async function mainDashBoardPage() {
   // return <>Hello</>;
-  return <FileDashboard />;
+
+  return eCommerceDashboardPage();
 }

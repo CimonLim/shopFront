@@ -1,5 +1,5 @@
 import {env} from "@/env.mjs";
-import {endpoints} from "@/app/api/auth/endpoints.ts";
+import {endpoints} from "@/app/api/endpoints.ts";
 import {apiClient} from "@/app/api/interceptor/client.ts";
 import {TokenResponse} from "@/app/api/auth/response/TokenResponse.ts";
 import {ApiResponse} from "@/app/api/common/response/ApiResponse.ts";
