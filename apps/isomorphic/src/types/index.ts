@@ -1,3 +1,4 @@
+
 import { CouponType } from '@/config/enums';
 
 export interface Coupon {

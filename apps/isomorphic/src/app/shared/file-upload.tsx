@@ -18,6 +18,7 @@ import {
   PiXBold,
 } from 'react-icons/pi';
 import { ActionIcon, Button, Text, Title } from 'rizzui';
+import {useUploadThing} from "@core/utils/uploadthing.ts";
 
 type AcceptedFiles = 'img' | 'pdf' | 'csv' | 'imgAndPdf' | 'all';
 
@@ -73,12 +74,12 @@ const fileType = {
 } as { [key: string]: React.ReactElement };
 
 export const FileInput = ({
-  label,
-  btnLabel = 'Upload',
-  multiple = true,
-  accept = 'img',
-  className,
-}: {
+                            label,
+                            btnLabel = 'Upload',
+                            multiple = true,
+                            accept = 'img',
+                            className,
+                          }: {
   className?: string;
   label?: React.ReactNode;
   multiple?: boolean;
@@ -88,14 +89,15 @@ export const FileInput = ({
   const { closeModal } = useModal();
   const [files, setFiles] = useState<Array<File>>([]);
   const imageRef = useRef<HTMLInputElement>(null);
+  const { startUpload, isUploading } = useUploadThing("generalMedia"); // UploadThing 훅 추가
 
   function handleFileDrop(event: React.ChangeEvent<HTMLInputElement>) {
     const uploadedFiles = (event.target as HTMLInputElement).files;
     const newFiles = Object.entries(uploadedFiles as object)
-      .map((file) => {
-        if (file[1]) return file[1];
-      })
-      .filter((file) => file !== undefined);
+        .map((file) => {
+          if (file[1]) return file[1];
+        })
+        .filter((file) => file !== undefined);
     setFiles((prevFiles) => [...prevFiles, ...newFiles]);
   }
 
@@ -105,16 +107,30 @@ export const FileInput = ({
     (imageRef.current as HTMLInputElement).value = '';
   }
 
-  function handleFileUpload() {
+  // 파일 업로드 핸들러 수정
+  async function handleFileUpload() {
     if (files.length) {
-      console.log('uploaded files:', files);
-      toast.success(<Text as="b">File successfully added</Text>);
+      try {
+        // UploadThing으로 파일 업로드
+        const uploadedFiles = await startUpload(files);
 
-      setTimeout(() => {
-        closeModal();
-      }, 200);
+        if (uploadedFiles) {
+          // 업로드 성공 시 URL 획득
+          const fileUrls = uploadedFiles.map(file => file.url);
+          console.log('Uploaded file URLs:', fileUrls);
+
+          toast.success(<Text as="b">Files successfully uploaded</Text>);
+
+          setTimeout(() => {
+            closeModal();
+          }, 200);
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast.error(<Text as="b">Upload failed</Text>);
+      }
     } else {
-      toast.error(<Text as="b">Please drop your file</Text>);
+      toast.error(<Text as="b">Please drop your files</Text>);
     }
   }
 
