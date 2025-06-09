@@ -1,6 +1,19 @@
 import './src/env.mjs';
 /** @type {import('next').NextConfig} */
 
+// 환경 변수 디버깅
+console.log('=== Environment Variables Debug ===');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? '[SET]' : '[NOT SET]');
+console.log('All NEXTAUTH_* variables:');
+Object.keys(process.env)
+    .filter(key => key.startsWith('NEXTAUTH_'))
+    .forEach(key => {
+      console.log(`${key}:`, process.env[key]);
+    });
+console.log('=====================================');
+
 const nextConfig = {
   images: {
     remotePatterns: [
