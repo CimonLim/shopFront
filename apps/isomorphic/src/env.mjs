@@ -26,6 +26,8 @@ export const env = createEnv({
     BACKEND_BASE_URL: z.string().optional(),
 
     COOKIE_HOUR: z.string().optional(),
+
+    UPLOADTHING_TOKEN: z.string().optional(),
   },
   /*
    * Environment variables available on the client (and server).
