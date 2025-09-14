@@ -8,7 +8,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-
+      - NODE_ENV=production
     volumes:
       - ./:/app # 소스 코드 변경 감지를 위한 볼륨 매핑
       - /app/node_modules # node_modules는 컨테이너 내부 것 사용

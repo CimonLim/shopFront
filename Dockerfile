@@ -38,7 +38,7 @@ RUN apk add --no-cache libc6-compat
 RUN npm install -g pnpm@9.9.0
 
 # 환경 변수 설정
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # 사용자 추가
 RUN addgroup --system --gid 1001 nodejs
@@ -59,8 +59,8 @@ USER nextjs
 EXPOSE 3000
 
 # 서버 실행 환경 설정
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # Next.js standalone 모드에서 생성된 서버 실행
 CMD ["node", "apps/isomorphic/server.js"]
