@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createEnv } from '@t3-oss/env-nextjs';
+// 환경 변수 디버깅
 
 export const env = createEnv({
   /*
