@@ -25,6 +25,7 @@ const SAVED_EMAIL_KEY = 'savedEmail';
 export default function SignInForm() {
   //TODO: why we need to reset it here
     const [reset, setReset] = useState({});
+    const [isLoading, setLoading] = useState(false);
     const [initialValues, setInitialValues] = useState<LoginSchema>({
         email: 'admin@company.com',
         password: 'AdminPass123!',
@@ -45,6 +46,7 @@ export default function SignInForm() {
     }, []);
 
   const onSubmit: SubmitHandler<LoginSchema> = async (data) => {
+      setLoading(true);
       console.log(data);
       try {
 
@@ -52,6 +54,7 @@ export default function SignInForm() {
               ...data,
               redirect:false,
           });
+
 
           if (result?.error) {
               const resultCode = result?.status;
@@ -83,7 +86,10 @@ export default function SignInForm() {
           setReset({
               password: '',
           });
+
           toast.error('로그인 중 오류가 발생했습니다.');
+      }finally {
+          setLoading(false);
       }
   }
 
@@ -139,7 +145,11 @@ export default function SignInForm() {
                 Forget Password?
               </Link>
             </div>
-            <Button className="w-full" type="submit" size="lg">
+            <Button 
+              className="w-full" type="submit" size="lg"
+              isLoading={isLoading} // 로딩 상태 적용
+              disabled={isLoading} // 로딩 중 중복 클릭 방지
+            >
               <span>Sign in</span>{' '}
               <PiArrowRightBold className="ms-2 mt-0.5 h-5 w-5" />
             </Button>
