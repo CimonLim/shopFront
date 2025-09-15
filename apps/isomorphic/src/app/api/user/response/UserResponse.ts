@@ -5,7 +5,7 @@ export interface UserResponse {
     id: string;
     email: string;
     name: string;
-    role: UserRole;
-    status: UserStatus;
+    password_expire_date: string;
+    login_attemps: number;
     createdAt: string;
 }

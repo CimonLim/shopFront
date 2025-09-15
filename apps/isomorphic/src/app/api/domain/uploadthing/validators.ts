@@ -1,5 +1,5 @@
-import { FILE_CONFIGS } from './config';
-import { logError } from './utils';
+import { FILE_CONFIGS } from './config.ts';
+import { logError } from './utils.ts';
 
 
 export const validateFile = (file: Readonly<{

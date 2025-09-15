@@ -47,6 +47,7 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error) {
           if (error instanceof Error) {
+            pagesOptions.error = error.message;
             throw new Error(error.message);
           }
           throw new Error('Authentication failed');
@@ -61,6 +62,7 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
+
     // getSession Customize
     async session({ session, token }) {
       console.log('in session')

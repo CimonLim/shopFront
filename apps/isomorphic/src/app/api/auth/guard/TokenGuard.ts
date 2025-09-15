@@ -14,7 +14,7 @@ export class TokenGuard {
         if (!this.isValid(token)) {
             return true
         }else{
-            const accessTokenExpiredAt = token?.refreshTokenExpiredAt;
+            const accessTokenExpiredAt = token?.accessTokenExpiredAt;
             if(accessTokenExpiredAt) return Date.now() > new Date(accessTokenExpiredAt).getTime();
             else return true;
         }

@@ -4,6 +4,9 @@ import { getSession } from 'next-auth/react';
 import { env } from '@/env.mjs';
 import {AuthService} from "@/app/api/auth/authService.ts";
 import applyCaseMiddleware from 'axios-case-converter';
+import { routes } from '@/config/routes';
+import { TokenErrorCode } from '../common/errors/TokenErrorCode';
+import { redirectToSignIn } from '@/lib/utils/redirect.ts';
 
 
 // 토큰 갱신 중인지 확인하는 플래그
@@ -50,60 +53,85 @@ apiClient.interceptors.request.use(
     }
 );
 
-// 응답 인터셉터
 apiClient.interceptors.response.use(
-    (response) => response,
-    async (error: AxiosError) => {
-        const originalRequest: any = error.config;
+  (response) => response,
+  async (error: AxiosError) => {
+      const originalRequest: any = error.config;
 
-        // 토큰 만료 에러 체크 (서버의 응답 형식에 맞게 수정 필요)
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            if (isRefreshing) {
-                // 토큰 갱신 중이면 새 토큰을 기다림
-                return new Promise((resolve) => {
-                    addRefreshSubscriber((token: string) => {
+      // 서버 응답 구조 확인
+      const responseData = error.response?.data as any;
+      const resultCode = responseData?.result?.result_code;
+      const TOKEN_ERROR_CODES = [
+        TokenErrorCode.TOKEN_EXPIRED, TokenErrorCode.INVALID_TOKEN,
+        TokenErrorCode.AUTHORIZATION_TOKEN_NOT_FOUND, TokenErrorCode.TOKEN_EXCEPTION
+      ];
+      
+      
+      // 토큰 에러 체크 및 재시도 방지
+      if (TOKEN_ERROR_CODES.includes(resultCode) && !originalRequest._retry) {
+          
+        //바로 로그인 페이지로
+        const invalid_error_codes = [
+            TokenErrorCode.INVALID_TOKEN, TokenErrorCode.AUTHORIZATION_TOKEN_NOT_FOUND,
+            TokenErrorCode.TOKEN_EXCEPTION
+        ]
+        if (invalid_error_codes.includes(resultCode)) {
+            redirectToSignIn('로그인이 필요합니다.');
+            return Promise.reject(error);
+        }
+        
+        // 토큰 갱신 처리
+        if (isRefreshing) {
+            // 토큰 갱신 중이면 새 토큰을 기다림
+            return new Promise((resolve, reject) => {
+                addRefreshSubscriber((token: string) => {
+                    if (token) {
                         originalRequest.headers.Authorization = `Bearer ${token}`;
                         resolve(apiClient(originalRequest));
-                    });
+                    } else {
+                        reject(error);
+                    }
                 });
-            }
-
-
-
-            originalRequest._retry = true;
-            isRefreshing = true;
-
-            try {
-                const session = await getSession();
-                const refreshToken = session?.refreshToken;
-
-                if (!refreshToken) {
-                    throw new Error('No refresh token available');
-                }
-
-                const tokenResponse = await AuthService.refreshToken(refreshToken);
-
-                const accessToken= tokenResponse.accessToken;
-
-                // 세션 업데이트 로직 (Next-Auth의 update 메서드 사용)
-                // 이 부분은 실제 구현 환경에 맞게 수정 필요
-                // await update({ accessToken });
-
-                // 대기 중인 요청들 처리
-                onRefreshed(accessToken);
-
-                // 원래 요청 재시도
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-                return apiClient(originalRequest);
-            } catch (refreshError) {
-                // 토큰 갱신 실패 시 로그아웃 처리
-                // window.location.href = '/auth/login';
-                return Promise.reject(refreshError);
-            } finally {
-                isRefreshing = false;
-            }
+            });
         }
 
-        return Promise.reject(error);
-    }
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+            const session = await getSession();
+            const refreshToken = session?.refreshToken;
+
+            if (!refreshToken) {
+                throw new Error('No refresh token available');
+            }
+
+            const tokenResponse = await AuthService.refreshToken(refreshToken);
+            const accessToken = tokenResponse.accessToken;
+
+            // 대기 중인 요청들 처리
+            onRefreshed(accessToken);
+
+            // 원래 요청 재시도
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            return apiClient(originalRequest);
+            
+        } catch (refreshError) {
+            console.error('토큰 갱신 실패:', refreshError);
+            
+            // 토큰 갱신 실패 시 로그아웃 처리
+            onRefreshed(''); // 대기 중인 요청들에게 실패 알림
+            
+            // 로그인 페이지로 리다이렉트
+            redirectToSignIn('로그인이 필요합니다.');
+            
+            return Promise.reject(refreshError);
+        } finally {
+            isRefreshing = false;
+        }
+      }
+
+      // 기타 에러는 그대로 전달
+      return Promise.reject(error);
+  }
 );

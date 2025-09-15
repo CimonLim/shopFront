@@ -1,4 +1,4 @@
-import { logError } from './utils';
+import { logError } from './utils.ts';
 
 export const auth = async (req: Request) => {
     try {

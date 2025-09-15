@@ -1,25 +1,89 @@
-// import { getServerSession } from 'next-auth/next';
+// src/app/api/uploadthing/core.ts
 import { createUploadthing, type FileRouter } from 'uploadthing/next';
-// import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options';
+import { ROUTER_CONFIG } from './config.ts';
+import { auth } from './auth.ts';
+import { logError } from './utils.ts';
+import { validateFile, validateFileCount } from './validators.ts'; // 상대 경로로 수정
+
+// ... 나머지 코드
+
 
 const f = createUploadthing();
 
-const auth = (req: Request) => ({ id: 'fakeId' }); // Fake auth function
-
-// FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
-  // Define as many FileRoutes as you like, each with a unique routeSlug
-  avatar: f({ image: { maxFileSize: '4MB' } })
-    .middleware(({ req }) => auth(req))
-    .onUploadComplete((data) => console.log('file', data)),
+  avatar: f(ROUTER_CONFIG.avatar)
+      .middleware(async ({ req }) => {
+        console.log('Avatar upload middleware started');
+        try {
+          const user = await auth(req);
+          console.log('Avatar upload auth successful:', user.id);
+          return user;
+        } catch (error) {
+          logError(error, 'avatar-middleware');
+          throw error;
+        }
+      })
+      .onUploadComplete((data) => {
+        try {
+          console.log('Avatar upload completed:', {
+            fileInfo: {
+              key: data.file.key,
+              name: data.file.name,
+              url: data.file.ufsUrl,
+              size: data.file.size,
+            },
+            userId: data.metadata.id,
+          });
+        } catch (error) {
+          logError(error, 'avatar-upload-complete', { fileData: data });
+        }
+      }),
 
-  generalMedia: f({
-    'application/pdf': { maxFileSize: '4MB', maxFileCount: 4 },
-    image: { maxFileSize: '2MB', maxFileCount: 4 },
-    video: { maxFileSize: '256MB', maxFileCount: 1 },
-  })
-    .middleware(({ req }) => auth(req))
-    .onUploadComplete((data) => console.log('file', data)),
+  generalMedia: f(ROUTER_CONFIG.generalMedia)
+      .middleware(async ({ req, files }) => {
+        console.log('General media middleware started');
+        try {
+          const user = await auth(req);
+          console.log('Auth successful, validating files...');
+
+          // 파일 유효성 검사
+          files.forEach(validateFile);
+          validateFileCount(files);
+
+          console.log('File validation successful');
+          console.log('Upload initiated:', {
+            userId: user.id,
+            filesInfo: files.map(f => ({
+              name: f.name,
+              size: f.size,
+              type: f.type
+            })),
+            timestamp: new Date().toISOString(),
+          });
+
+          return user;
+        } catch (error) {
+          logError(error, 'general-media-middleware', { files });
+          throw error;
+        }
+      })
+      .onUploadComplete((data) => {
+        try {
+          console.log('General media upload completed:', {
+            fileInfo: {
+              key: data.file.key,
+              name: data.file.name,
+              url: data.file.ufsUrl,
+              size: data.file.size,
+              type: data.file.type,
+            },
+            userId: data.metadata.id,
+            timestamp: new Date().toISOString(),
+          });
+        } catch (error) {
+          logError(error, 'general-media-upload-complete', { fileData: data });
+        }
+      }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
